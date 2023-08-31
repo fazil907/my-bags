@@ -1,0 +1,121 @@
+<%- include("../partials/adminPartials/header")%>
+<%- include("../partials/adminPartials/navbar")%>
+
+<section class="is-title-bar">
+  <div
+    class="flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0"
+  >
+    <ul>
+      <li>Admin</li>
+      <li>Category</li>
+      <li>Edit Category</li>
+    </ul>
+  </div>
+</section>
+
+<section class="is-hero-bar">
+  <div
+    class="flex flex-col  md:flex-row items-center justify-between space-y-6 md:space-y-0"
+  >
+    <h1 class="title">Edit Category</h1>
+  </div>
+</section>
+
+<section class="section main-section addCat">
+  <div class="card mb-6 " >
+    <header class="card-header bg-info">
+      <p class="card-header-title">
+        <span class="icon"><i class="mdi mdi-ballot"></i></span>
+        Edit Category
+      </p>
+    </header>
+    <div class="card-content inner-addCat">
+      <form
+        id="updateCategoryValidate"
+        method="post"
+        action="/admin/updateCategory/<%= categoryData._id %>"
+        enctype="multipart/form-data"
+      >
+        <div class="field">
+          <label class="label"> New Category Name</label>
+          <div class="field-body">
+            <div class="field">
+              <div class="control icons-left">
+                <input
+                  class="input"
+                  type="text"
+                  placeholder="Category name"
+                  name="categoryName"
+                  id="name"
+                  value="<%= categoryData.category %>"
+                />
+                <span class="icon left"><i class="mdi mdi-table"></i></span>
+              </div>
+            </div>
+
+            <!-- <p class="text-danger error-message">Category Already Exists!!</p> -->
+          </div>
+        </div>
+        <div class="field">
+          <label class="label"> New Description</label>
+          <div class="field-body">
+            <div class="field">
+              <div class="control icons-left">
+                <input
+                  class="input"
+                  type="text"
+                  placeholder="Description"
+                  name="categoryDescription"
+                  id="categoryDescription"
+                  value="<%= categoryData.description %>"
+                />
+                <span class="icon left"
+                  ><i class="mdi mdi-note-outline"></i
+                ></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <br />
+        <div class="field">
+          <label class="label" for="image">New Category Image</label>
+          <div class="field-body">
+            <div class="field file">
+              <label class="upload control">
+                <a class="button red">Image Upload</a>
+                <input type="file" id="image" name="image" accept="image/*" />
+                <% if (categoryData && categoryData.imageUrl) { %>
+                  <img
+                    id="preview"
+                    src="<%= categoryData.imageUrl.url %>"
+                    alt="Image Preview"
+                    style="display: block"
+                  />
+                <% } else { %>
+                  <img
+                    id="preview"
+                    src=""
+                    alt="Image Preview"
+                    style="display: none"
+                  />
+                <% } %>
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <hr />
+        <button
+          type="submit"
+          class="button green"
+          style="display: inline-block; margin-top: 1rem; margin-left: 33rem"
+        >
+          Update
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+</div>
+
+<%- include("../partials/adminPartials/footer")%>

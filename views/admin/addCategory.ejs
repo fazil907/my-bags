@@ -1,0 +1,134 @@
+<%- include("../partials/adminPartials/header") %>
+<%-include("../partials/adminPartials/navbar")  %>
+
+<section class="is-title-bar">
+  <div
+    class="flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0"
+  >
+    <ul>
+      <li>Admin</li>
+      <li>Category</li>
+      <li>Add Category</li>
+    </ul>
+  </div>
+</section>
+
+<section class="is-hero-bar">
+  <div
+    class="flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0"
+  >
+    <h1 class="title">Forms</h1>
+  </div>
+</section>
+
+<section class="section main-section addCat">
+  <div class="card mb-6">
+    <header class="card-header bg-success">
+      <p class="card-header-title">
+        <span class="icon"><i class="mdi mdi-ballot"></i></span>
+        Add New Category
+      </p>
+    </header>
+
+    <div class="card-content inner-addCat">
+      <form
+        id="categoryValidate"
+        method="post"
+        action="/admin/addCategory"
+        enctype="multipart/form-data"
+      >
+        <div class="field">
+          <label class="label">Category Name</label>
+          <div class="field-body">
+            <div class="field">
+              <div class="control icons-left">
+                <input
+                  class="input"
+                  type="text"
+                  placeholder="Category name"
+                  name="categoryName"
+                  id="name"
+                />
+                <span class="icon left"><i class="mdi mdi-table"></i></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">Description</label>
+          <div class="field-body">
+            <div class="field">
+              <div class="control icons-left">
+                <input
+                  class="input"
+                  type="text"
+                  placeholder="Description"
+                  name="categoryDescription"
+                  id="categoryDescription"
+                />
+                <span class="icon left"
+                  ><i class="mdi mdi-note-outline"></i
+                ></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr />
+
+        <div class="field">
+          <label class="label" for="image">Category Image</label>
+          <div class="field-body">
+            <div class="field file">
+              <label class="upload control">
+                <a class="button blue">Image Upload</a>
+                <img
+                  id="preview"
+                  src="#"
+                  alt="Image Preview"
+                  style="display: none"
+                />
+                <input type="file" id="image" name="image" accept="image/*" />
+                <img id="preview" src="#" alt="Image Preview" style="display: none;">
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="button light" style="margin-left: 1rem">
+          Add
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+</div>
+
+
+<script>
+  function imagePreview(event){
+    const fileInput = event.target;
+    const previewImage = document.getElementById("preview");
+
+    if (fileInput.files && fileInput.files[0]) {
+      const reader = new FileReader();
+
+      reader.onload = function (e) {
+        previewImage.src = e.target.result;
+        previewImage.style.display = "block";
+      };
+
+      reader.readAsDataURL(fileInput.files[0]);
+    } else {
+      previewImage.style.display = "none";
+    }
+
+  }
+
+  const imageInput = document.getElementById("image");
+  imageInput.addEventListener("change", imagePreview);
+</script>
+
+
+<%include("../partials/adminPartials/footer")  %>
