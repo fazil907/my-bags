@@ -77,7 +77,7 @@
                             <div class="product-details-action">
                                 <div class="details-action-col">
                                     <div class="product-details-quantity">
-                                        <input type="number" id="qty" class="form-control" value="1" min="1" max="10" step="1" data-decimals="0" required>
+                                        <input type="number" id="qty" class="form-control" value="1" min="1" max="" step="1" data-decimals="0" required>
                                     </div><!-- End .product-details-quantity -->
   
                                     <!-- <a href="#" class="btn-product btn-cart"><span>add to cart</span></a> -->
@@ -85,7 +85,7 @@
                                 </div><!-- End .details-action-col -->
   
                                 <div class="details-action-wrapper">
-                                    <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
+                                    <!-- <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a> -->
                                     
                                 </div><!-- End .details-action-wrapper -->
                             </div><!-- End .product-details-action -->
@@ -257,7 +257,7 @@
                 <% productDatas.forEach(product => {%>
                     <div class="product product-7 text-center">
                         <figure class="product-media">
-                            <a href="product.html">
+                            <a href="/productView?id=<%= product._id  %>">
                                 <img src="<%= product.imageUrl[0].url%>" alt="Product image" class="product-image">
                             </a>
       
@@ -300,7 +300,6 @@
 
 <script>
     async function addToCart(){
-        console.log(7)
         event.preventDefault();
         const quantity = document.getElementById("qty").value;
         const productId = document.getElementById("productId").value;
@@ -315,7 +314,6 @@
 
             if(response.status === 200){
                 if(response.data.message == "Item already in the cart"){
- 
                     Swal.fire({
                         icon: 'success',
                         title: 'Item is already in the cart',
@@ -332,6 +330,14 @@
                         timer: 1500     
                     });
 
+                }else if (response.data.message === "Quantity exceeds available stock") {
+
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Out of stock',
+                        text: 'The selected quantity is more than the available stock.',
+                        confirmButtonText: 'OK'
+                    });
                 }
             }
         } catch (error) {

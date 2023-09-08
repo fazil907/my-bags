@@ -24,7 +24,6 @@ user_router.post('/login',blockCheck,loginController.loginPost)
 user_router.get('/logout',userController.logout)
 
 // forgot otp
-
 user_router.get('/forgotPassword',loginController.forgotPassword)
 user_router.post('/verifyEmail',loginController.verifyForgotEmail)
 user_router.get('/forgotPasswordOtp',loginController.forgotPasswordOtp)
@@ -37,12 +36,18 @@ user_router.get('/profile',isLogin,profileController.loadProfile)
 user_router.get('/myOrder',isLogin, profileController.myOrders)
 user_router.get('/orderDetails',isLogin, profileController.orderDetails)
 user_router.post('/updateOrder',isLogin, profileController.updateOrder)
+user_router.get("/orderFilter", profileController.filterOrder);
+user_router.post("/verifyProfile", profileController.verifyProfile)
 
 // OTP
 user_router.get('/otp',otpController.otpGet)
 user_router.post('/otpEnter',otpController.otpVerify)
 
 user_router.post('/addNewAddress',isLogin, userController.addNewAddress)
+user_router.get('/newAddress', userController.newAddress)
+user_router.get("/editAddress",userController.loadEditAddress)
+user_router.post("/updateAddress",userController.verifyUpdateAddress)
+user_router.get("/deleteAddress", userController.deleteAddress);
   
 // Products
 user_router.get('/products/:id' , productController.getCategoryProducts)
@@ -57,6 +62,7 @@ user_router.get('/cart',isLogin,cartController.getCart)
 user_router.post('/addToCart',isLogin,cartController.addToCart)
 user_router.post('/cartUpdation',isLogin, cartController.updateCart)
 user_router.get('/removeFromCart',isLogin,cartController.removeFromCart)
+user_router.get('/getStock',cartController.getStock)
 user_router.get('/checkout',isLogin,cartController.loadCheckout)
 
 user_router.get("/wishlist", isLogin, cartController.loadWishlist);

@@ -148,9 +148,9 @@
 
                                                                                                     <a class="edit-address-btn"
                                                                                                          id="editAddressBtn"
-                                                                                                         href="#"
+                                                                                                         href="/editAddress?addressId=<%= address._id %>"
                                                                                                          data-id="<%= address._id %>"
-                                                                                                         onclick="scrollToForm()">Edit
+                                                                                                         >Edit
                                                                                                          <i
                                                                                                               class="icon-edit"></i></a>
                                                                                                     <a href="#"
@@ -206,7 +206,7 @@
                                              <div class="col-sm-6">
                                                   <label>Current Password</label>
                                                   <input type="password" name="currentPassword"
-                                                       class="form-control" required>
+                                                       class="form-control" >
                                                   <p id="currentPasswordError"
                                                        class="text-danger error-msg"></p>
                                              </div><!-- End .col-sm-6 -->
@@ -217,7 +217,7 @@
                                              <div class="col-sm-6">
                                                   <label>New Password *</label>
                                                   <input type="password" name="newPassword"
-                                                       class="form-control" required>
+                                                       class="form-control" >
                                                   <p id="newPasswordError"
                                                        class="text-danger error-msg"></p>
                                              </div><!-- End .col-sm-6 -->
@@ -225,7 +225,7 @@
                                              <div class="col-sm-6">
                                                   <label>Confirm Password *</label>
                                                   <input type="password" name="confirmPassword"
-                                                       class="form-control" required>
+                                                       class="form-control" >
                                                   <p id="confirmPasswordError"
                                                        class="text-danger error-msg"></p>
                                              </div><!-- End .col-sm-6 -->
@@ -259,7 +259,6 @@
                               event.preventDefault();
 
                               const formData = new FormData(event.target);
-                              console.log(JSON.stringify(Object.fromEntries(formData.entries())))
                               resetError();
                               try {
                                    const response = await axios.post("/verifyProfile", formData, {
@@ -269,7 +268,7 @@
                                    });
 
                                    if (response.status === 200) {
-                                        window.location.href = "/jazool";
+                                        window.location.href = "/";
                                    }
                               } catch (error) {
                                    if (error.response.status === 400) {
@@ -344,5 +343,155 @@
                               }
                          };
                     </script>
+
+     <!-- <script>
+
+          const editAddressBtns = document.querySelectorAll(".edit-address-btn");
+
+          const editAddressPanel = document.querySelector("#editAddressPanel");
+
+          const addressIdInput = document.getElementById("addressId");
+
+          const fullNameInput = document.querySelector(".full-name-input");
+          const mobileNumberInput = document.querySelector(".mobile-number-input");
+          const addressLineInput = document.querySelector(".address-line-input");
+          const emailInput = document.querySelector(".email-input");
+          const cityInput = document.querySelector(".city-input");
+          const stateInput = document.querySelector(".state-input");
+          const pincodeInput = document.querySelector(".pincode-input");
+
+          editAddressBtns.forEach((btn) => {
+
+          btn.addEventListener("click", async (event) => {
+               event.preventDefault();
+               editAddressPanel.style.display = "block";
+               addAddressPanel.style.display = "none";
+
+               const addressId = btn.dataset.id;
+
+               try {
+                    const response = await fetch(`/addressData?addressId=${addressId}`, {
+                         method: "GET",
+                         headers: {
+                              "Content-Type": "application/json", // Adjust the content type based on your server's requirements
+                              // Add any other headers if required
+                         },
+                    });
+
+                    if (response.ok) {
+                         const addressData = await response.json();
+
+                         // Populate the input fields with the received addressData
+
+                         addressIdInput.value = addressData._id;
+
+                         fullNameInput.value = addressData.name;
+                         mobileNumberInput.value = addressData.mobile;
+                         addressLineInput.value = addressData.addressLine;
+                         emailInput.value = addressData.email;
+                         cityInput.value = addressData.city;
+                         stateInput.value = addressData.state;
+                         pincodeInput.value = addressData.pincode;
+                    } else {
+                         console.log("Failed to fetch address data");
+                    }
+               } catch (error) {
+                    console.log(error.message);
+               }
+          });
+          });
+
+          function scrollToForm() {
+          // Delay for a certain duration (e.g., 500 milliseconds) before scrolling
+
+          setTimeout(function () {
+               // Calculate the offset of the target element
+               const targetOffset = $("#editAddressPanel").offset().top;
+          
+               // Calculate the height of the window
+               const windowHeight = $(window).height();
+          
+               // Calculate the final scroll position to scroll to the top of the target element
+               const scrollPosition = targetOffset - windowHeight + $("#editAddressPanel").outerHeight();
+               
+               $("html, body").animate(
+                    {
+                         scrollTop: scrollPosition,
+                    },
+                    800
+               ); // Adjust the animation speed as needed
+          }, 300); // Adjust the delay duration as needed
+          }
+
+          function scrollToForm2() {
+          // Delay for a certain duration (e.g., 500 milliseconds) before scrolling
+          setTimeout(function () {
+               // Calculate the offset of the target element
+               const targetOffset = $("#addAddressPanel").offset().top;
+
+               // Calculate the height of the window
+               const windowHeight = $(window).height();
+
+               // Calculate the final scroll position to scroll to the top of the target element
+               const scrollPosition = targetOffset - windowHeight + $("#addAddressPanel").outerHeight();
+
+               // Animate scrolling to the target element
+               $("html, body").animate(
+                    {
+                         scrollTop: scrollPosition,
+                    },
+                    800
+               ); // Adjust the animation speed as needed
+          }, 300); // Adjust the delay duration as needed
+          }
+
+          const updateAddress = document.getElementById("updateAddress");
+
+          if (updateAddress) {
+          updateAddress.addEventListener("submit", async function (event) {
+               event.preventDefault();
+
+               const form = event.target;
+               const formData = new FormData(form);
+
+               const addressId = document.getElementById("addressId").value;
+
+               if ($(form).valid()) {
+                    try {
+                         const response = await fetch(`/updateAddress?addressId=${addressId}`, {
+                              method: "POST",
+                              body: JSON.stringify(Object.fromEntries(formData)),
+                              headers: {
+                              "Content-Type": "application/json",
+                              },
+                         });
+
+                         if (response.ok) {
+                              Swal.fire({
+                              icon: "success",
+                              title: "Successfully Updated address",
+                              showConfirmButton: true,
+                              confirmButtonText: "OK",
+                              confirmButtonColor: "#4CAF50",
+                              });
+                              editAddressPanel.style.display = "none";
+                              form.reset();
+                         } else {
+                              Swal.fire({
+                              icon: "error",
+                              title: "Some error occured",
+                              showConfirmButton: true,
+                              confirmButtonText: "CANCEL",
+                              confirmButtonColor: "#D22B2B",
+                              });
+                         }
+                    } catch (error) {
+                         console.log("Error:", error.message);
+                    }
+               }
+          });
+          }
+
+     </script> -->
 
 <%-include("../partials/userPartials/footer")  %>

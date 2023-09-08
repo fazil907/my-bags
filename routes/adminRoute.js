@@ -17,8 +17,9 @@ admin_router.post("/login", adminController.loginPost);
 admin_router.get("/logout", adminController.adminLogout);
 
 admin_router.get('/dashboard',isLogged,dashboardController.dashboardGet)
-
 admin_router.get("/chartData", dashboardController.chartData);
+admin_router.get("/generateSalesReport", isLogged,dashboardController.generateSalesReport);
+admin_router.post('/downloadSalesReport', dashboardController.downloadSalesReport)
 
 
 //users // block and unblock
@@ -29,33 +30,33 @@ admin_router.get('/unBlock/:id',usersController.userUnblock);
 
 // category
 
-admin_router.get('/category',categoryController.loadCategory)
-admin_router.get('/addCategory',categoryController.addCategory)
+admin_router.get('/category',isLogged,categoryController.loadCategory)
+admin_router.get('/addCategory',isLogged,categoryController.addCategory)
 admin_router.post('/addCategory',store.single("image"),categoryController.addNewCategory)
-admin_router.get('/editCategory/:id',categoryController.editCategory)
+admin_router.get('/editCategory/:id',isLogged,categoryController.editCategory)
 admin_router.post('/updateCategory/:id',store.single("image"),categoryController.updateCategory)
-admin_router.get('/unListCategory/:id',categoryController.unListCategory)
+admin_router.get('/unListCategory/:id',isLogged,categoryController.unListCategory)
 
 
 /// products
 
-admin_router.get('/products',productController.getProduct)
-admin_router.get('/addProducts',productController.getAddProduct)
-admin_router.post('/addProducts',store.array("image",4),productController.addNewProduct)
-admin_router.get('/editProducts/:id',productController.getEditProduct)
+admin_router.get('/products',isLogged,productController.getProduct)
+admin_router.get('/addProducts',isLogged,productController.getAddProduct)
+admin_router.post('/addProducts',isLogged,store.array("image",4),productController.addNewProduct)
+admin_router.get('/editProducts/:id',isLogged,productController.getEditProduct)
 admin_router.post('/updateProducts/:id',store.single("image"),productController.updateProduct)
 admin_router.get("/deleteProduct/:id", isLogged, productController.deleteProduct);
 
 // order
 
-admin_router.get('/orders' , orderController.getorder)
-admin_router.post('/updateOrder',orderController.updateOrder)
-admin_router.get('/orderDetails',orderController.getOrderDetails)
+admin_router.get('/orders' ,isLogged, orderController.getorder)
+admin_router.post('/updateOrder',isLogged,orderController.updateOrder)
+admin_router.get('/orderDetails',isLogged,orderController.getOrderDetails)
 
 // coupons
 
-admin_router.get('/coupons',couponController.loadCoupons )
-admin_router.get('/loadAddCoupon', couponController.loadAddCoupon)
+admin_router.get('/coupons',isLogged,couponController.loadCoupons )
+admin_router.get('/loadAddCoupon',isLogged, couponController.loadAddCoupon)
 admin_router.post('/addCoupon', couponController.addCoupon)
 admin_router.post("/blockCoupon",couponController.blockCoupon);
 admin_router.post("/deleteCoupon",couponController.deleteCoupon);

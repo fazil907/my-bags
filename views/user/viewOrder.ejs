@@ -64,8 +64,16 @@
                           <td>
                               <%= order.paymentMethod %>
                           </td>
-                          <td class="price-col">₹ <%= order.amountAfterDiscount %>
+                          <% if(order.amountAfterDiscount){%>
+                            <td 
+                            class="price-col">₹ <%= order.amountAfterDiscount %>
                           </td>
+                            <%} else{%>
+                            <td 
+                            class="price-col">₹ <%= order.total %>
+                            </td>
+                            <%}%>   
+
                           <% if (order.status==="Pending" ) { %>
                               <td style="color: orange; font-weight: 600;">
                                   <%= order.status %>
@@ -128,3 +136,4 @@
 
 
 <%-include("../partials/userPartials/footer") %>
+

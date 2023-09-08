@@ -51,84 +51,203 @@ try {
 }
 
 
-exports.addToCart = async (req,res)=>{
+// exports.addToCart = async (req,res)=>{
+//   try {
+//     const userDetail = req.session.user;
+//     const userId = userDetail._id;
+//     const { quantity} = req.body
+//     const productId = req.body.productId.trim();
+    
+//     const product = await Product.findById(productId)
+//     const stock = product.stock
+//     const existed = await User.findOne({
+//       _id : userId,
+//       "cart.product" : productId
+//     })
+//     let status = false;
+//     if(quantity > stock){
+//       status = true
+//     }
+//     if(status){
+//       return res.status(400).json({message : "Out of Stock"})
+//     }
+//     if(existed){
+//       await User.findOneAndUpdate(
+//         {_id : userId , "cart.product" : productId},
+//         {$inc : {"cart.$.quantity" : quantity ? quantity : 1} },
+//         {new : true}
+//       )
+//       return res.status(200).json({message : "Item already in the cart"})
+//     }else{
+//       // Update the isOnCart field for the product
+//       await Product.findByIdAndUpdate(productId, { isOnCart: true });
+      
+//       // Add the product to the user's cart
+//       await User.findByIdAndUpdate(
+//         {_id : userId},
+//         {
+//           $push : {
+//             cart : {
+//               product : productId,
+//               quantity : quantity ? quantity : 1
+//             }
+//           }
+//         },
+//         {
+//           new : true
+//         }
+//       )
+//       return res.status(200).json({message : "Item added to the cart"})
+//     }
+//   } catch (error) {
+//    res.render("404")
+//     console.log(error)
+//   }
+// }
+
+
+// exports.addToCart = async (req, res) => {
+//   try {
+//     const userDetail = req.session.user;
+//     const userId = userDetail._id;
+//     const { quantity } = req.body;
+//     const productId = req.body.productId.trim();
+
+//     const product = await Product.findById(productId);
+//     const stock = product.stock;
+
+//     if (quantity > stock) {
+//       return res.status(400).json({ message: "Out of Stock" });
+//     }
+
+//     const existed = await User.findOne({
+//       _id: userId,
+//       "cart.product": productId,
+//     });
+
+//     if (existed) {
+//       await User.findOneAndUpdate(
+//         { _id: userId, "cart.product": productId },
+//         { $inc: { "cart.$.quantity": quantity ? quantity : 1 } },
+//         { new: true }
+//       );
+//       return res.status(200).json({ message: "Item already in the cart" });
+//     } else {
+//       // Update the isOnCart field for the product
+//       await Product.findByIdAndUpdate(productId, { isOnCart: true });
+
+//       // Add the product to the user's cart
+//       await User.findByIdAndUpdate(
+//         { _id: userId },
+//         {
+//           $push: {
+//             cart: {
+//               product: productId,
+//               quantity: quantity ? quantity : 1,
+//             },
+//           },
+//         },
+//         {
+//           new: true,
+//         }
+//       );
+//       return res.status(200).json({ message: "Item added to the cart" });
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({ message: "Internal Server Error" });
+//   }
+// };
+
+exports.addToCart = async (req, res) => {
   try {
     const userDetail = req.session.user;
     const userId = userDetail._id;
-    const { quantity} = req.body
+    const { quantity } = req.body;
     const productId = req.body.productId.trim();
-    
-    const product = await Product.findById(productId)
-    const stock = product.stock
+
+    const product = await Product.findById(productId);
+    const stock = product.stock;
+
+    if (quantity > stock) {
+      return res.status(400).json({ message: "Out of Stock" });
+    }
+
     const existed = await User.findOne({
-      _id : userId,
-      "cart.product" : productId
-    })
-    let status = false;
-    if(quantity > stock){
-      status = true
-    }
-    if(status){
-      return res.status(400).json({message : "Out of Stock"})
-    }
-    if(existed){
-      await User.findOneAndUpdate(
-        {_id : userId , "cart.product" : productId},
-        {$inc : {"cart.$.quantity" : quantity ? quantity : 1} },
-        {new : true}
-      )
-      return res.status(200).json({message : "Item already in the cart"})
-    }else{
+      _id: userId,
+      "cart.product": productId,
+    });
+
+    if (existed) {
+      return res.status(200).json({ message: "Item already in the cart" });
+    } else {
       // Update the isOnCart field for the product
       await Product.findByIdAndUpdate(productId, { isOnCart: true });
-      
+
       // Add the product to the user's cart
       await User.findByIdAndUpdate(
-        {_id : userId},
+        { _id: userId },
         {
-          $push : {
-            cart : {
-              product : productId,
-              quantity : quantity ? quantity : 1
-            }
-          }
+          $push: {
+            cart: {
+              product: productId,
+              quantity: quantity ? quantity : 1,
+            },
+          },
         },
         {
-          new : true
+          new: true,
         }
-      )
-      return res.status(200).json({message : "Item added to the cart"})
+      );
+      return res.status(200).json({ message: "Item added to the cart" });
     }
   } catch (error) {
-   res.render("404")
-    console.log(error)
+    console.log(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+exports.getStock = async (req, res) => {
+  try {
+    console.log(212)
+    const productId = req.query.productId;
+    console.log(214,productId)
+    const product = await Product.findById(productId);
+
+
+    const selectedStock = product.stock
+
+    res.status(200).json({ stock: selectedStock });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 }
 
 
-  exports.updateCart = async (req, res) => {
-    try {
-      const userDetail = req.session.user;
-  
-      const data = await User.find(
-        { _id: userDetail._id },
-        { _id: 0, cart: 1 }
-      ).lean();
-  
-      data[0].cart.forEach((val, i) => {
-        val.quantity = req.body.datas[i].quantity;
-      });
-  
-      await User.updateOne(
-        { _id: userDetail._id },
-        { $set: { cart: data[0].cart } }
-      );
-      res.status(200).send();
-    } catch (error) {
-   res.render("404")
-      console.log(error.message);
-    }
-  };
+exports.updateCart = async (req, res) => {
+  try {
+    const userDetail = req.session.user;
+
+    const data = await User.find(
+      { _id: userDetail._id },
+      { _id: 0, cart: 1 }
+    ).lean();
+
+    data[0].cart.forEach((val, i) => {
+      val.quantity = req.body.datas[i].quantity;
+    });
+
+    await User.updateOne(
+      { _id: userDetail._id },
+      { $set: { cart: data[0].cart } }
+    );
+    res.status(200).send();
+  } catch (error) {
+  res.render("404")
+    console.log(error.message);
+  }
+};
 
 exports.removeFromCart = async (req,res)=>{
   try {

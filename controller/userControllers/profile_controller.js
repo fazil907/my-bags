@@ -4,6 +4,7 @@ const Product = require('../../models/productModel')
 const Address = require('../../models/addressModel')
 const Order = require("../../models/orderModel")
 const moment = require("moment")
+const bcrypt = require('bcrypt')
 
 exports.loadProfile = async (req,res)=>{
 try {
@@ -115,13 +116,13 @@ exports.updateOrder = async (req, res) => {
     const userDetail = req.session.user;
     const userId = userDetail._id;
 
-    console.log(117,userId)
-
     const orderId = req.query.orderId;
     const status = req.body.orderStatus;
     const paymentMethod = req.body.paymentMethod;
     const updatedBalance = req.body.wallet;
+
     const total = req.body.total;
+
     const order = await Order.findOne({ _id: orderId });
     const orderIdValue = order.orderId;
 
@@ -227,24 +228,132 @@ exports.updateOrder = async (req, res) => {
   }
 };
 
-// exports.filterOrder = async (req, res) => {
-//   try {
-//     const status = req.query.status;
+const securePassword = async (password) => {
+  try {
+    const passwordHash = await bcrypt.hash(password, 10);
+    return passwordHash;
+  } catch (error) {
+    console.log(error.message);
+    throw error;
+  }
+};
 
-//     const userDetail = req.session.email;
-//     const userId = userDetail._id;
+exports.verifyProfile = async (req, res) => {
+  console.log(10)
+  try {
+    const data = {
+      name: req.body.name,
+      phone: req.body.phone,
+      email: req.body.email,
+      currentPassword: req.body.currentPassword,
+      newPassword: req.body.newPassword,
+    };
 
-//     const orders = await Order.find({ userId, status: status }).sort({
-//       date: -1,
-//     });
+    console.log(243, data);
 
-//     const formattedOrders = orders.map((order) => {
-//       const formattedDate = moment(order.date).format("MMMM D YYYY");
-//       return { ...order.toObject(), date: formattedDate };
-//     });
+    const user = await User.findOne({ email: data.email });
+    
+    console.log(247,user)
 
-//     res.json(formattedOrders);
-//   } catch (error) {
-//     console.log(error.message);
-//   }
-// };
+    const valid = await profileValidation(req.body);
+
+    console.log(249)
+    if (!valid.isValid) {
+      return res.status(400).json({ error: valid.errors });
+    }
+    
+    if (data.newPassword) {
+      const hashedPassword = await securePassword(data.newPassword);
+      console.log(257,hashedPassword);
+      user.password = hashedPassword;
+    }
+
+    await user.save();
+    console.log("savedd")
+    return res.status(200).end();
+  } catch (error) {
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+exports.filterOrder = async (req, res) => {
+  try {
+    const status = req.query.status;
+
+    const userDetail = req.session.user;
+    const userId = userDetail._id;
+
+    const orders = await Order.find({ userId, status: status }).sort({
+      date: -1,
+    });
+
+    const formattedOrders = orders.map((order) => {
+      const formattedDate = moment(order.date).format("MMMM D YYYY");
+      return { ...order.toObject(), date: formattedDate };
+    });
+
+    res.json(formattedOrders);
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
+async function profileValidation(data) {
+  console.log(290)
+  const { name, phone, email, currentPassword, newPassword, confirmPassword } = data;
+  console.log(data)
+  const errors = {};
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phoneRegex = /^(\+91)?[6-9]\d{9}$/;
+  const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+  const existingUser = await User.findOne({ email: email });
+
+  console.log(298,existingUser)
+
+  if (!email) {
+    errors.emailError = "Please Enter an Email";
+  } else if (!emailRegex.test(email)) {
+    errors.emailError = "Please provide a valid Email";
+  }
+
+  if (!name) {
+    errors.nameError = "Please Enter a Name";
+  }
+
+  if (!phone) {
+    errors.phoneError = "Please provide a Phone number";
+  } else if (!phoneRegex.test(phone)) {
+    errors.phoneError = "Invalid Phone Number";
+  }
+
+  if (  
+    currentPassword &&
+    !(await bcrypt.compare(currentPassword, existingUser.password))
+  ) {
+    errors.currentPasswordError = "Incorrect Password!";
+  }
+
+  if (!email) {
+    errors.emailError = "Please Enter an Email";
+  } else if (!emailRegex.test(email)) {
+    errors.emailError = "Please provide a valid Email";
+  }
+
+  if (!newPassword) {
+    errors.newPasswordError = "Please provide a Password";
+  } else if (!passwordRegex.test(newPassword)) {
+    errors.newPasswordError =
+      "Password must be 8 characters with one uppercase letter, one lowercase letter, and one number";
+  }
+
+  if (newPassword !== confirmPassword && newPassword.length > 0) {
+    errors.confirmPasswordError = "The passwords do not match";
+  }
+
+  console.log(87398)
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+  };
+}

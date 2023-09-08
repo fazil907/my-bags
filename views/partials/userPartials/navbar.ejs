@@ -8,11 +8,11 @@
           <div class="header-left">
               <div class="header-search header-search-extended header-search-visible d-none d-lg-block">
                   <a href="#" class="search-toggle" role="button"><i class="icon-search"></i></a>
-                  <form action="#" method="get">
+                  <form action="/products" method="get">
                       <div class="header-search-wrapper search-wrapper-wide">
                           <label for="q" class="sr-only">Search</label>
                           <button class="btn btn-primary" type="submit"><i class="icon-search"></i></button>
-                          <input type="search" class="form-control" name="q" id="q" placeholder="Search product ..." required>
+                          <input type="search" class="form-control" name="search" id="search" placeholder="Search product ..." required>
                       </div><!-- End .header-search-wrapper -->
                   </form>
               </div><!-- End .header-search -->
@@ -25,7 +25,7 @@
 
           <div class="header-right">
               <a href="/wishlist" class="wishlist-link">
-                  <i class="icon-heart-o"></i>
+                  <!-- <i class="icon-heart-o"></i> -->
                   <!-- <span class="wishlist-count">3</span> -->
                   <!-- <span class="wishlist-txt">My Wishlist</span> -->
               </a>
@@ -38,24 +38,57 @@
                   </a>
 
               </div><!-- End .cart-dropdown -->
+              <div>
+                <ul>
+                    <li>
+                        <% if (typeof userDetail !== 'undefined') { %>
+                          <div class="dropdown compare-dropdown">
+                            <a href="#" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true"
+                              aria-expanded="false" data-display="static" title="Compare Products" aria-label="Compare Products">
+                              <i class="fa-solid fa-wallet fa-sm pt-1 mt-1"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right">
+                              <ul class="compare-products">
+                                <li class="compare-product text-center">
+                                  <h5>Available Wallet Balance</h5>
+                                </li>
+                              </ul>
+                              <div class="col-lg-12">
+                                <div class="row">
+                                  <div class="col-lg-12 text-center">
+                                    <p style="font-size: 2.4rem; font-weight: 500;">₹ <%= userDetail.wallet.balance %></p>
+                                    <input type="hidden" id="userWallet" value="<%= userDetail.wallet.balance %>">
+                                  </div>
+                                </div>
+                              </div>
+                            </div><!-- End .dropdown-menu -->
+                          </div><!-- End .compare-dropdown -->
+                        <% } %>
+                      </li>
+                      
+                </ul>
+            </div>
+              <ul class="top-menu top-link-menu ml-4">
+                  <li>
+                    <% if(typeof userDetail != "undefined"){%>
+                        <a href="#">Links</a>
+                        <ul>
+                            <li><a href="/logout"><i class="icon-user"></i>Logout</a></li>
+                        </ul>
+                    <%}else{%>
+                        <a href="#">Links</a>
+                        <ul>
+                            <li><a href="/login"><i class="icon-user"></i>Login</a></li>
+                        </ul>
+                    <%}%>
+                     
+                  </li>
+                  
+              </ul>
 
+              
           </div>
-          <ul class="top-menu top-link-menu ml-4">
-              <li>
-                <% if(typeof userDetail != "undefined"){%>
-                    <a href="#">Links</a>
-                    <ul>
-                        <li><a href="/logout"><i class="icon-user"></i>Logout</a></li>
-                    </ul>
-                <%}else{%>
-                    <a href="#">Links</a>
-                    <ul>
-                        <li><a href="/login"><i class="icon-user"></i>Login</a></li>
-                    </ul>
-                <%}%>
-                 
-              </li>
-          </ul>
+
       </div><!-- End .container -->
 
   </div><!-- End .header-middle -->
@@ -69,7 +102,7 @@
                           <a href="/" class="sf" aria-selected="true">HOME</a>
                       </li>
                       <li class="megamenu-container " >
-                        <a href="/products" class="sf" aria-selected="true">SHOP</a>
+                        <a href="/products" class="sf" aria-selected="true">PRODUCTS</a>
                     </li>
                       <li>
                         <% if(typeof categoryData !== "undefined" && categoryData.length>0){%> 
@@ -110,6 +143,8 @@
                   <i class="icon-bars"></i>
               </button>
           </div><!-- End .header-left -->
+
+          
 
       </div><!-- End .container -->
   </div><!-- End .header-bottom -->

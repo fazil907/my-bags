@@ -383,13 +383,23 @@
 
                         <div class="product-list-action ">
                             <table class="table table-summary">
-                                <tr>
-                                    <td class="order-one">Grand Total :</td>
-                                    <td class="order-two" style="text-align: end;">₹ <%= orderDetails.amountAfterDiscount
-                                            %>
-                                    </td>
-                                    <input type="hidden" id="grandTotal" value="<%= orderDetails.amountAfterDiscount %>">
-                                </tr>
+                                <% if(orderDetails.offerDiscount){%>
+                                    <tr>
+                                        <td class="order-one">Grand Total :</td>
+                                        <td class="order-two" style="text-align: end;">₹ <%= orderDetails.amountAfterDiscount
+                                                %>
+                                        </td>
+                                        <input type="hidden" id="grandTotal" value="<%= orderDetails.amountAfterDiscount %>">
+                                    </tr>
+                                    <%}else{%>
+                                        <tr>
+                                        <td class="order-one">Grand Total :</td>
+                                        <td class="order-two" style="text-align: end;">₹ <%= orderDetails.total
+                                                %>
+                                        </td>
+                                        <input type="hidden" id="grandTotal" value="<%= orderDetails.amountAfterDiscount %>">
+                                    </tr>
+                                        <%}%>
                                 <% if (orderDetails.offerDiscount) { %>
                                     <tr>
                                         <td class="order-one" style="color: green;">Offer Discount :</td>
@@ -479,6 +489,7 @@ crossorigin="anonymous" referrerpolicy="no-referrer">
 <script>
   const cancelOrder = async () => {
   const orderId = document.getElementById("orderId").value;
+  console.log(482,orderId);
   const result = await Swal.fire({
     title: `Do you want to cancel this order?`,
     text: "For further assistance,\n contact our customer support team.\n We're here to help!",
@@ -516,83 +527,85 @@ const returnOrder = async () => {
 };
 
 const updateOrder = async (orderId, orderStatus) => {
-  try {
-    console.log(501,"updateorder");
-    
-    const grandTotal = Number(document.getElementById("grandTotal").value);
 
-console.log(506);
-    const paymentMethod = document.getElementById("paymentMethod").innerHTML;
+try {
+  const walletBalance = Number(document.getElementById("userWallet").value);
+  console.log(533,walletBalance);
+  const grandTotal = Number(document.getElementById("grandTotal").value);
 
-    const response = await fetch(`/updateOrder?orderId=${orderId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        orderStatus: orderStatus,
-        paymentMethod: paymentMethod,
-        
-        total: grandTotal,
-      }),
+  const updatedBalance = walletBalance + grandTotal;
+console.log(537,grandTotal,updatedBalance);
+  const paymentMethod = document.getElementById("paymentMethod").innerHTML;
+
+  const response = await fetch(`/updateOrder?orderId=${orderId}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      orderStatus: orderStatus,
+      paymentMethod: paymentMethod,
+      wallet: updatedBalance,
+      total: grandTotal,
+    }),
+  });
+
+  const data = await response.json();
+
+  const orderStatusBtn = document.getElementById("orderStatusBtn");
+
+  if (data.message === "Cancelled") {
+    const result = await Swal.fire({
+      position: "center",
+      icon: "success",
+      title: "Your order has been successfully cancelled",
+      text: "Your order has been cancelled.\n Any payment made will be refunded\n in your account within 7 business days.",
+      showConfirmButton: true,
+      confirmButtonColor: "#00A300",
     });
-console.log(521,response);
-    const data = await response.json();
-console.log(523,data);
-    const orderStatusBtn = document.getElementById("orderStatusBtn");
 
-    if (data.message === "Cancelled") {
-      const result = await Swal.fire({
-        position: "center",
-        icon: "success",
-        title: "Your order has been successfully cancelled",
-        text: "Your order has been cancelled.\n Any payment made will be refunded\n in your account within 7 business days.",
-        showConfirmButton: true,
-        confirmButtonColor: "#00A300",
-      });
+    if (result.value) {
+      const expectedDate = document.getElementById("expectedDate");
+      expectedDate.classList.add("d-none");
 
-      if (result.value) {
-        const expectedDate = document.getElementById("expectedDate");
-        expectedDate.classList.add("d-none");
+      orderStatusBtn.innerHTML = `<p class="disabled btn-product btn-cart icon-info-circle"><span>Order Cancelled</span></p>`;
 
-        orderStatusBtn.innerHTML = `<p class="disabled btn-product btn-cart icon-info-circle"><span>Order Cancelled</span></p>`;
-
-        if (data.refund === "Refund") {
-          const refundMessage = document.getElementById("refundMessage");
-          refundMessage.classList.remove("d-none");
-        } else {
-          const refundMessage = document.getElementById("refundMessage");
-          refundMessage.classList.add("d-none");
-        }
-      }
-    } else if (data.message === "Returned") {
-      const result = await Swal.fire({
-        position: "center",
-        icon: "success",
-        title: "Successfully placed return request",
-        text: "Return request received!.\n Our team will review it and\n provide further instructions",
-        showConfirmButton: true,
-        confirmButtonColor: "#00A300",
-      });
-
-      if (result.value) {
-        const expectedDate = document.getElementById("expectedDate");
-        expectedDate.classList.add("d-none");
-
-        orderStatusBtn.innerHTML = `<p  class="disabled btn-product btn-cart icon-info-circle"><span>Order Returned</span></p>`;
-
-        if (data.refund === "Refund") {
-          const refundMessage = document.getElementById("refundMessage");
-          refundMessage.classList.remove("d-none");
-        } else {
-          const refundMessage = document.getElementById("refundMessage");
-          refundMessage.classList.add("d-none");
-        }
+      if (data.refund === "Refund") {
+        const refundMessage = document.getElementById("refundMessage");
+        refundMessage.classList.remove("d-none");
+      } else {
+        const refundMessage = document.getElementById("refundMessage");
+        refundMessage.classList.add("d-none");
       }
     }
-  } catch (error) {
-    console.log(error.message);
+  } else if (data.message === "Returned") {
+    const result = await Swal.fire({
+      position: "center",
+      icon: "success",
+      title: "Successfully placed return request",
+      text: "Return request received!.\n Our team will review it and\n provide further instructions",
+      showConfirmButton: true,
+      confirmButtonColor: "#00A300",
+    });
+
+    if (result.value) {
+      const expectedDate = document.getElementById("expectedDate");
+      expectedDate.classList.add("d-none");
+
+      orderStatusBtn.innerHTML = `<p  class="disabled btn-product btn-cart icon-info-circle"><span>Order Returned</span></p>`;
+
+      if (data.refund === "Refund") {
+        const refundMessage = document.getElementById("refundMessage");
+        refundMessage.classList.remove("d-none");
+      } else {
+        const refundMessage = document.getElementById("refundMessage");
+        refundMessage.classList.add("d-none");
+      }
+    }
   }
+} catch (error) {
+  console.log(error.message);
+}
 };
 </script>
 

@@ -17,24 +17,15 @@ exports.placeOrder = async (req, res) => {
     const paymentMethod = req.body.selectedPayment;
     const couponData = req.body.couponData;
 
-    console.log(124,userDetail)
-    console.log(userId)
-    console.log(addressId)
-    console.log(amount)
-    console.log(paymentMethod)
-    console.log(couponData)
-
-
     const user = await User.findOne({ _id: userId }).populate("cart.product");
-    console.log(25, user)
+
     const userCart = user.cart;
 
     let subTotal = 0;
-    let size;
+
     userCart.forEach((item) => {
       item.total = item.product.price * item.quantity;
       subTotal += item.total;
-      size = item.size;
     });
 
     let productData = userCart.map((item) => {
@@ -48,7 +39,6 @@ exports.placeOrder = async (req, res) => {
       };
     });
     
-    console.log(148,productData)
 
     const result = Math.random().toString(36).substring(2, 7);
     const id = Math.floor(100000 + Math.random() * 900000);
@@ -70,7 +60,7 @@ exports.placeOrder = async (req, res) => {
           discountAmount: couponData.discountAmount,
           amountAfterDiscount: couponData.newTotal,
           couponName: couponData.couponName,
-          isNotBlocked: true,
+          isBlocked: false,
         });
         console.log(172)
         await order.save();
@@ -100,16 +90,27 @@ exports.placeOrder = async (req, res) => {
 
       userCartDetails.forEach(async (item) => {
         const productId = item.product._id;
-
+        console.log(94,productId)
         const quantity = item.quantity;
-
+        console.log(96,quantity)
         const product = await Product.findById(productId);
+        const currentStock = product.stock;
+        const newStock = currentStock - quantity;
+        // const product = await Product.findById(productId);
+        await Product.findByIdAndUpdate(
+          productId,
+          {stock: newStock},
+          {new:true}
+        )
+        // console.log(98,product)
+        // let stock = product.stock;
+        // console.log("old stock",stock)
 
-        let stock = product.stock;
+        // stock = stock - quantity
 
-        stock -= quantity
+        // console.log("new stock" , stock)
 
-        await product.save();
+        // await product.save();
       });
 
       userDetails.cart = [];
@@ -159,11 +160,11 @@ exports.placeOrder = async (req, res) => {
             status: "Debit",
           };
 
-          // await User.findByIdAndUpdate(
-          //   userId,
-          //   { $push: { "wallet.transactions": transaction } },
-          //   { new: true }
-          // );
+          await User.findByIdAndUpdate(
+            userId,
+            { $push: { "wallet.transactions": transaction } },
+            { new: true }
+          );
 
           saveOrder();
           req.session.checkout = false;

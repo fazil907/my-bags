@@ -22,15 +22,17 @@ const updateCartOnServer = async (datas) => {
   }
 };
 
+
+///total price
+
 const totalPrice = async (id, act, stock) => {
   const elem = document.getElementById(id);
-
   if (act == "inc") {
     elem.value ? (elem.value = Number(elem.value) + 1) : "";
   } else if (act == "decs") {
     elem.value > 1 ? (elem.value = Number(elem.value) - 1) : "";
   }
-
+  const response= handleIncreaseButtonClick(id, stock); 
   let subTotal = 0;
   let datas = [];
   let length = document.getElementsByName("productTotal").length;
@@ -61,6 +63,44 @@ const totalPrice = async (id, act, stock) => {
 
   updateCartOnServer(datas);
 };
+
+
+// get stock
+async function handleIncreaseButtonClick(productId) {
+  try {
+    console.log(21212)
+    const response = await fetch(
+      `/getStock?productId=${productId}`
+    );
+    const stockData = await response.json();
+  
+
+    const quantityElement = document.getElementById(productId);
+
+
+    const quantity = parseFloat(quantityElement.value);
+
+
+    const stock = stockData.stock;
+ 
+    if (quantity + 1 <= stock) {
+       return 1
+      // Update the total price and other UI elements
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Out of stock",
+        text: "The selected quantity is not available.",
+        confirmButtonText: "OK",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+
+// remove cart
 
 const removeCartalert = async (id) => {
   const productId = document.getElementById("product_id" + id).value;
@@ -165,6 +205,8 @@ function resetErrorMessage() {
   });
 }
 
+
+
 ///// Placing Order
 
 const placeOrder = async () => {
@@ -207,6 +249,7 @@ console.log(191,subTotal);
         selectedAddress: selectedAddress,
         selectedPayment: selectedPayment,
         amount: subTotal,
+        walletBalance: updatedBalance,
         couponData: couponData,
       }),
     });
@@ -221,6 +264,55 @@ console.log(191,subTotal);
     console.log(error.message);
   }
 };
+
+function updateWalletBalanceOnUI(newBalance) {
+  console.log(322);
+  const walletBalanceElement = document.getElementById("userWallet");
+  console.log(324,walletBalanceElement);
+  walletBalanceElement.value = newBalance; // Update the input value
+  
+}
+
+const wallet = async (selectedPayment) => {
+  try {
+    const balance = document.getElementById("userWallet").value;
+    const subTotal = Number(document.getElementById("subTotalValue").value);
+    const insufficientBalanceAlert = document.getElementById(
+      "insufficientBalanceAlert"
+    );
+
+    if (balance > subTotal) {
+      const updatedBalance = balance - subTotal;
+      cashOnDelivery(selectedPayment, updatedBalance); 
+    } else {
+      insufficientBalanceAlert.classList.remove("d-none");
+      insufficientBalanceAlert.classList.add("d-flex");
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
+window.addEventListener("load", function () {
+  const insufficientBalanceAlert = document.getElementById(
+    "insufficientBalanceAlert"
+  );
+  if (insufficientBalanceAlert) {
+    insufficientBalanceAlert.classList.remove("d-flex");
+    insufficientBalanceAlert.classList.add("d-none");
+  }
+});
+
+const closeButton = document.querySelector(".btn-close");
+if (closeButton) {
+  closeButton.addEventListener("click", function () {
+    const insufficientBalanceAlert = document.getElementById(
+      "insufficientBalanceAlert"
+    );
+    insufficientBalanceAlert.classList.remove("d-flex");
+    insufficientBalanceAlert.classList.add("d-none");
+  });
+}
 
 const addressRadios = document.querySelectorAll(
   'input[name="selectedAddress"]'

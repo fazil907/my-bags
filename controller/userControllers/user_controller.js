@@ -129,3 +129,73 @@ exports.addNewAddress = async (req,res)=>{
 }
 
 
+exports.newAddress=(req,res)=>{
+ 
+  res.render("addAddress",{title:"Add New Address"})
+}
+
+
+
+exports.deleteAddress = async (req, res) => {
+  try {
+    const addressId = req.query.addressId;
+
+    const success = await Address.findByIdAndDelete(addressId);
+
+    if (success) {
+      res.status(200).send();
+    } else {
+      res.status(500).send();
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
+
+
+
+exports.loadEditAddress=async(req,res)=>{
+  try {
+    const addresId=req.query.addressId
+  
+    const categoryData = await Category.find({ isBlocked: false });
+    const userDetail = req.session.user;
+    const userId = userDetail._id;
+    const addressData = await Address.findById(addresId);
+
+    const user = await User.findById(userId);
+
+
+    res.render("editAddress",{title:"Edit Address",
+    userDetail,
+    addressData,
+    categoryData,
+  })
+  } catch (error) {
+    
+  }
+}
+
+
+
+exports.verifyUpdateAddress = async (req, res) => {
+  try {
+      const { addressId, name, email,address, city, state, pincode, mobile } = req.body;
+      // Update the address details in the database using the addressId
+      await Address.findByIdAndUpdate(addressId, {
+          name,
+          email,
+          address,
+          city,
+          state,
+          pincode,
+          mobile,
+      });
+   res.redirect("/profile")
+    
+  } catch (error) {
+      // Handle errors
+  }
+};
+
