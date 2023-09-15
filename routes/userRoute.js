@@ -43,6 +43,8 @@ user_router.post("/verifyProfile", profileController.verifyProfile)
 user_router.get('/otp',otpController.otpGet)
 user_router.post('/otpEnter',otpController.otpVerify)
 
+user_router.post('/addFund', userController.addFund);
+// user_router.post('/verifyPayment', userController.verifyPayment)
 user_router.post('/addNewAddress',isLogin, userController.addNewAddress)
 user_router.get('/newAddress', userController.newAddress)
 user_router.get("/editAddress",userController.loadEditAddress)

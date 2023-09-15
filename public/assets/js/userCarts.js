@@ -354,7 +354,7 @@ const razorpay = async (selectedPayment) => {
       currency: "INR",
       name: "MY BAGS",
       description: "Order payment",
-      image: "/assets/images/demos/demo-7/zaak-logo.png",
+      image: "",
       order_id: undefined, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
       handler: function (response) {
         cashOnDelivery(selectedPayment);

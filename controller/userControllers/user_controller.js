@@ -2,6 +2,7 @@ const User = require("../../models/userModel");
 const Category = require("../../models/categoryModel")
 const Address = require("../../models/addressModel")
 const Product = require("../../models/productModel")
+const Razorpay = require("razorpay")
 
 
 exports.homepage = async (req, res) => {
@@ -196,6 +197,42 @@ exports.verifyUpdateAddress = async (req, res) => {
     
   } catch (error) {
       // Handle errors
+  }
+};
+
+
+exports.addFund = async (req, res) => {
+  try {
+    console.log(206)
+    const amount  = parseFloat(req.body.amount)
+    console.log(208, amount)
+    // Find the user by ID
+    const userDetail = req.session.user
+    const userId = userDetail._id
+    const user = await User.findById(userId);
+    console.log(211 , user)
+    // Update the wallet balance
+    user.wallet.balance += parseFloat(amount);
+    console.log(214 , user.wallet.balance)
+    console.log(typeof(amount))
+    // Add a transaction record
+    user.wallet.transactions.push({
+      date: new Date(),
+      details: 'Added funds to wallet',
+      amount,
+      status: 'Success',
+    });
+    console.log(222)
+    // Save the updated user
+    await user.save();
+
+    req.session.user.wallet.balance += parseFloat(amount);
+
+    console.log("savedd")
+    return res.status(200).json({ message: 'Funds added to wallet successfully' });
+  } catch (error) {
+    console.error('Error adding funds to wallet:', error);
+    return res.status(500).json({ error: 'An error occurred while adding funds to wallet.' });
   }
 };
 

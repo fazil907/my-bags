@@ -206,6 +206,12 @@
                                       </div><!-- End .product-content -->
                                   </div><!-- End .product-body -->
                               </div><!-- End .col-lg-6 -->
+                              <div class="col-6 col-lg-2">
+                                <div class="custom-control custom-checkbox">
+                                  <input type="checkbox" class="custom-control-input" id="product<%= product._id %>" name="selectedProducts" value="<%= product._id %>">
+                                  <label class="custom-control-label" for="product<%= product._id %>">Select</label>
+                                </div>
+                              </div>
                           </div><!-- End .row -->
                       </div><!-- End .product -->
                       <% }); %>
