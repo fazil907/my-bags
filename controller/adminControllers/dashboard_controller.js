@@ -3,6 +3,7 @@ const Sale = require('../../models/orderModel')
 const moment = require('moment')
 const Category = require("../../models/categoryModel")
 const PDFDocument = require("pdfkit");
+const fs = require('fs');
 const ejs=require("ejs")
 
 exports.dashboardGet = async (req, res) => {
@@ -254,7 +255,7 @@ try {
 
   const { startDate, endDate } = req.query;
 console.log(308,req.query);
-  const pdfBuffer = await generateSalesReportPDF( startDate, endDate);
+  const pdfBuffer = await generateSalesReportPDF( startDate, endDate, orderData);
 
   res.set({
       "Content-Type": "application/pdf",
@@ -272,62 +273,94 @@ console.log(308,req.query);
 
 
 
-const generateSalesReportPDF = async ( startDate, endDate) => {
-    console.log(344,"generate");
-  const newstartDate = new Date(startDate);
-  const newEndDate = new Date(endDate);
-  const orderData = await Sale.find({
-    date: {
-        $gte: newstartDate,
-        $lte: newEndDate,
-    },
-    status: "Delivered",
-}).sort({ date: "desc" });
-  return new Promise((resolve, reject) => {
+// const generateSalesReportPDF = async ( startDate, endDate) => {
+//     console.log(344,"generate");
+//   const newstartDate = new Date(startDate);
+//   const newEndDate = new Date(endDate);
+//   const orderData = await Sale.find({
+//     date: {
+//         $gte: newstartDate,
+//         $lte: newEndDate,
+//     },
+//     status: "Delivered",
+// }).sort({ date: "desc" });
+//   return new Promise((resolve, reject) => {
     
-      const doc = new PDFDocument();
-      const pdfBuffer = [];
+//       const doc = new PDFDocument();
+//       const pdfBuffer = [];
 
-      doc.on('data', (chunk) => {
-          pdfBuffer.push(chunk);
-      });
+//       doc.on('data', (chunk) => {
+//           pdfBuffer.push(chunk);
+//       });
 
-      doc.on('end', () => {
-          resolve(Buffer.concat(pdfBuffer));
-      });
+//       doc.on('end', () => {
+//           resolve(Buffer.concat(pdfBuffer));
+//       });
 
-      doc.on('error', (error) => {
-          reject(error);
-      });
+//       doc.on('error', (error) => {
+//           reject(error);
+//       });
 
-      // Customize PDF content
-      doc.fontSize(18).text('Sales Report', { align: 'center' }).moveDown();
-      doc.fontSize(14).text(`Start Date: ${startDate}`, { align: 'center' });
-      doc.text(`End Date: ${endDate}`, { align: 'center' }).moveDown();
+//       // Customize PDF content
+//       doc.fontSize(18).text('Sales Report', { align: 'center' }).moveDown();
+//       doc.fontSize(14).text(`Start Date: ${startDate}`, { align: 'center' });
+//       doc.text(`End Date: ${endDate}`, { align: 'center' }).moveDown();
 
-      // Add order data to the PDF
-      doc.moveDown();
-      doc.fontSize(14).text('Order Details:', { underline: true }).moveDown();
+//       // Add order data to the PDF
+//       doc.moveDown();
+//       doc.fontSize(14).text('Order Details:', { underline: true }).moveDown();
 
-      orderData.forEach(async (order) => {
-          doc.text(`Order ID: ${order.orderId}`);
+//       orderData.forEach(async (order) => {
+//           doc.text(`Order ID: ${order.orderId}`);
         
-          doc.text(`Total: ${order.total}`);
-          doc.text(`Payment Method: ${order.paymentMethod}`);
-          doc.text(`Status: ${order.status}`);
-          doc.moveDown();
+//           doc.text(`Total: ${order.total}`);
+//           doc.text(`Payment Method: ${order.paymentMethod}`);
+//           doc.text(`Status: ${order.status}`);
+//           doc.moveDown();
 
-          // Add product details
-          order.product.forEach(product => {
-              doc.text(`Product: ${product.name}`);
-              doc.text(`Price: ${product.price}`);
-              doc.text(`Quantity: ${product.quantity}`);
-              doc.moveDown();
-          });
+//           // Add product details
+//           order.product.forEach(product => {
+//               doc.text(`Product: ${product.name}`);
+//               doc.text(`Price: ${product.price}`);
+//               doc.text(`Quantity: ${product.quantity}`);
+//               doc.moveDown();
+//           });
 
-          doc.moveDown();
-      });
+//           doc.moveDown();
+//       });
 
-      doc.end();
+//       doc.end();
+//   });
+// };  
+
+
+const generateSalesReportPDF = async (startDate, endDate, orderData) => {
+  const doc = new PDFDocument();
+
+  // Pipe the PDF to a buffer
+  const chunks = [];
+  doc.on('data', chunk => chunks.push(chunk));
+  doc.on('end', () => {
+    const pdfBuffer = Buffer.concat(chunks);
+    resolve(pdfBuffer);
   });
-};  
+
+  // Customize PDF content
+  doc.fontSize(18).text('Sales Report', { align: 'center' }).moveDown();
+  doc.fontSize(14).text(`Start Date: ${startDate}`, { align: 'center' });
+  doc.text(`End Date: ${endDate}`, { align: 'center' }).moveDown();
+
+  // Create a table
+  const table = {
+    headers: ['Order ID', 'Total', 'Payment Method', 'Status'],
+    rows: orderData.map(order => [order.orderId, order.total, order.paymentMethod, order.status]),
+  };
+
+  doc.table(table, {
+    prepareHeader: () => doc.font('Helvetica-Bold'),
+    prepareRow: (row, i) => doc.font('Helvetica').fontSize(12),
+  });
+
+  // Stream the PDF data
+  doc.end();
+};

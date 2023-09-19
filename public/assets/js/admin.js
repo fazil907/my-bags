@@ -425,12 +425,6 @@ if (startDateField && endDateField) {
         startDate = document.getElementById("start-date").value;
         endDate = document.getElementById("end-date").value;
         console.log(startDate, endDate);
-    
-    
-    
-       
- 
-    
  
 
  function renderSalesReport(orderData) {

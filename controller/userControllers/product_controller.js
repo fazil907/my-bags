@@ -176,6 +176,9 @@ exports.getCategoryProducts = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
+    const userData = req.session.user;
+    const categoryData = await Category.find({ isBlocked: false });
+    res.render("404", { userData, categoryData });
   }
 };
 

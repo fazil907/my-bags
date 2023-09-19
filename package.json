@@ -23,6 +23,7 @@
     "nocache": "^4.0.0",
     "nodemailer": "^6.9.4",
     "pdfkit": "^0.13.0",
+    "pdfmake": "^0.2.7",
     "razorpay": "^2.9.2",
     "uuid": "^9.0.0"
   },
